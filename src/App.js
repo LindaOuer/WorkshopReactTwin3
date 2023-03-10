@@ -1,25 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Suspense } from "react";
+import { useDispatch } from "react-redux";
+import { Route, Routes } from "react-router-dom";
+import "./App.css";
+import AddProduct from "./Components/AddProduct";
+import UpdateProduct from "./Components/UpdateProduct";
+import { fetchProducts } from "./redux/slices/productsSlice";
+const Products = React.lazy(() => import("./Components/Products"));
+const NotFound = React.lazy(() => import("./Components/NotFound"));
+const NavbarComponent = React.lazy(() => import("./Components/Navbar"));
+const ProductDetails = React.lazy(() => import("./Components/ProductDetails"));
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const dispatch = useDispatch();
+    return (
+        <>
+            <Suspense fallback={<p>Chargement ...</p>}>
+                <NavbarComponent />
+                <Routes>
+                    <Route path="/products">
+                        <Route path="list" element={<Products />} loader={dispatch(fetchProducts())} />
+                        <Route path="add" element={<AddProduct />} />
+                        <Route path="update/:id" element={<UpdateProduct />} />
+                        <Route path=":id" element={<ProductDetails />} />
+                    </Route>
+
+                    <Route path="*" element={<NotFound />} />
+                </Routes>
+            </Suspense>
+        </>
+    );
 }
 
 export default App;
